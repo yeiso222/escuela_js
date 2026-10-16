@@ -1,0 +1,17 @@
+.c-usuario { padding: 28px 16px 120px; text-align: center; animation: aparecer 0.4s ease both; }
+.c-usuario-avatar {
+  width: 96px; height: 96px; margin: 0 auto 12px;
+  border-radius: 50%; font-size: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.35);
+}
+.c-usuario h1 { font-size: 22px; font-weight: 700; }
+.c-usuario-sub { color: var(--muted); font-size: 14px; margin: 4px 0 20px; }
+.c-usuario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.c-usuario-card {
+  background: #fff; border-radius: 20px; padding: 18px 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+.c-usuario-card span { font-size: 28px; font-weight: 700; color: var(--primary); }
+.c-usuario-card p { color: var(--muted); font-size: 13px; margin-top: 4px; }

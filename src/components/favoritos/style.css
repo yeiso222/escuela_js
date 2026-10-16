@@ -15,3 +15,5 @@
   border: none; background: #fee2e2; color: #b91c1c;
   padding: 6px 14px; border-radius: 999px; cursor: pointer;
 }
+.c-fav-lista { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.c-fav-item { border-radius: 20px; }

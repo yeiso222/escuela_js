@@ -4,11 +4,11 @@ import './style.css'
 
 const categorias = [
   { id: 'All', nombre: 'Todos' },
-  { id: 1, nombre: 'Clothes' },
-  { id: 2, nombre: 'Electronics' },
-  { id: 3, nombre: 'Furniture' },
-  { id: 4, nombre: 'Shoes' },
-  { id: 5, nombre: 'Miscellaneous' }
+  { id: 1, nombre: 'Ropa' },
+  { id: 2, nombre: 'Electrónica' },
+  { id: 3, nombre: 'Muebles' },
+  { id: 4, nombre: 'Zapatos' },
+  { id: 5, nombre: 'Variados' }
 ]
 
 // la API es pública y tiene productos de prueba de otros usuarios: los descartamos

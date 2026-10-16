@@ -21,7 +21,7 @@ function Info() {
   const masCaro = productos.reduce((a, b) => (b.price > a.price ? b : a))
   const masBarato = productos.reduce((a, b) => (b.price < a.price ? b : a))
   const porCategoria = productos.reduce((acc, p) => {
-    const nombre = p.category?.name ?? 'Otros'
+    const nombre = ({ Clothes: 'Ropa', Electronics: 'Electrónica', Furniture: 'Muebles', Shoes: 'Zapatos', Miscellaneous: 'Variados' })[p.category?.name] ?? p.category?.name ?? 'Otros'
     acc[nombre] = (acc[nombre] || 0) + 1
     return acc
   }, {})
