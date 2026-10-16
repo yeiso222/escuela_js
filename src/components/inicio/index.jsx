@@ -2,83 +2,78 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './style.css'
 
+const categorias = [
+  { id: 'All', nombre: 'Todos' },
+  { id: 1, nombre: 'Clothes' },
+  { id: 2, nombre: 'Electronics' },
+  { id: 3, nombre: 'Furniture' },
+  { id: 4, nombre: 'Shoes' },
+  { id: 5, nombre: 'Miscellaneous' }
+]
+
+// la API es pública y tiene productos de prueba de otros usuarios: los descartamos
+const esValido = (p) =>
+  Array.isArray(p.images) && p.images.length > 0 && !p.images[0].includes('placehold')
+
 function Inicio() {
-  const [todoslospokes, setTodoslospokes] = useState([])
+  const [productos, setProductos] = useState([])
   const [busqueda, setBusqueda] = useState('')
-  const [tipopoke, setTipopoke] = useState('All')
+  const [categoria, setCategoria] = useState('All')
   const navigate = useNavigate()
 
   useEffect(() => {
-    const cargarPokemons = async () => {
+    const cargarProductos = async () => {
       try {
-        if (tipopoke === 'All') {
-          const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1025')
-          const responseData = await response.json()
-          setTodoslospokes(responseData.results ?? [])
-          return
-        }
-
-        const response = await fetch(`https://pokeapi.co/api/v2/type/${tipopoke}`)
+        const url =
+          categoria === 'All'
+            ? 'https://api.escuelajs.co/api/v1/products'
+            : `https://api.escuelajs.co/api/v1/products/?categoryId=${categoria}`
+        const response = await fetch(url)
         const responseData = await response.json()
-        const mascotas = responseData.pokemon?.map((entry) => entry.pokemon) ?? []
-        setTodoslospokes(mascotas)
+        setProductos((responseData ?? []).filter(esValido))
       } catch (error) {
         console.error('Error:', error)
       }
     }
 
-    cargarPokemons()
-  }, [tipopoke])
+    cargarProductos()
+  }, [categoria])
 
-  const resultados = busqueda.trim().length >= 3 && isNaN(busqueda)
-    ? todoslospokes.filter((pokemon) =>
-        pokemon.name.toLowerCase().includes(busqueda.toLowerCase())
-      )
-    : todoslospokes
+  const resultados =
+    busqueda.trim().length >= 3
+      ? productos.filter((p) => p.title.toLowerCase().includes(busqueda.toLowerCase()))
+      : productos
 
-  const tipos = [
-    'All',
-    'normal', 'fighting', 'flying', 'poison', 'ground', 'rock',
-    'bug', 'ghost', 'steel', 'fire', 'water', 'grass', 'electric',
-    'psychic', 'ice', 'dragon', 'dark', 'fairy', 'stellar', 'shadow', 'unknown'
-  ]
-
-  if (todoslospokes.length === 0) return <p>Cargando...</p>
-  if (resultados.length === 0) return <p>No se encontraron Pokémon.</p>
+  if (productos.length === 0) return <p>Cargando...</p>
+  if (resultados.length === 0) return <p>No se encontraron productos.</p>
 
   return (
     <>
       <div className="c-filtro">
-        {tipos.map((unTipo, index) => (
-          <button type="button" key={index} onClick={() => setTipopoke(unTipo)}>
-            {unTipo}
+        {categorias.map((c) => (
+          <button type="button" key={c.id} className={categoria === c.id ? 'activo' : ''} onClick={() => setCategoria(c.id)}>
+            {c.nombre}
           </button>
         ))}
       </div>
 
       <input
         type="text"
-        placeholder="Buscar Pokémon"
+        placeholder="Buscar producto"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
         className="c-buscador"
       />
-      
-      <div className="c-lista">
-      {resultados.map((pokemon) => (
-        <div className="c-lista-pokemon" key={pokemon.name} onClick={() => navigate(`/pokemon/${pokemon.name}`)}>
-          <p>{pokemon.url.split('/')[6]}</p>
-          <p>{pokemon.name}</p>
 
-          <img
-            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.url.split('/')[6]}.png`}
-            alt={`Pokémon ${pokemon.name}`}
-            width="auto"
-            height="60"
-            loading="lazy"
-          />
-        </div>
-      ))}
+      <div className="c-lista">
+        {resultados.map((p) => (
+          <div className="c-lista-pokemon" key={p.id} onClick={() => navigate(`/pokemon/${p.id}`)}>
+            <p>{p.id}</p>
+            <p>{p.title}</p>
+            <p>${p.price}</p>
+            <img src={p.images[0]} alt={p.title} width="auto" height="60" loading="lazy" />
+          </div>
+        ))}
       </div>
     </>
   )

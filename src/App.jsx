@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, Navigate,Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom';
 
 import Inicio from "./components/inicio";
 import Favoritos from "./components/favoritos";
@@ -9,16 +9,19 @@ import Pokemon from "./components/pokemon"
 import './App.css'
 
 function App() {
-
   return (
     <>
       <Router>
+        <header className="c-header">
+          <h1>🛍️ Tienda EscuelaJS</h1>
+          <p>Encuentra lo que buscas</p>
+        </header>
         <nav className='c-menu'>
-          <Link to="/">Inicio</Link>
-          <Link to="/coleccion">Coleccion</Link>
-          <Link to="/favoritos">Favoritos</Link>
-          <Link to="/info">Info</Link>
-          <Link to="/usuario">Usuario</Link>
+          <NavLink to="/" end><span>🏠</span>Inicio</NavLink>
+          <NavLink to="/coleccion"><span>🛒</span>Carrito</NavLink>
+          <NavLink to="/favoritos"><span>❤️</span>Favoritos</NavLink>
+          <NavLink to="/info"><span>📊</span>Info</NavLink>
+          <NavLink to="/usuario"><span>👤</span>Usuario</NavLink>
         </nav>
         <Routes>
           <Route path="/" element={<Inicio />} />
@@ -26,7 +29,7 @@ function App() {
           <Route path="/coleccion" element={<Coleccion />} />
           <Route path="/info" element={<Info />} />
           <Route path="/usuario" element={<Usuario />} />
-          <Route path="/pokemon/:name" element={<Pokemon />} />
+          <Route path="/pokemon/:id" element={<Pokemon />} />
         </Routes>
       </Router>
     </>

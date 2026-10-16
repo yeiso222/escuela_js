@@ -1,62 +1,96 @@
-import { useParams } from "react-router-dom"; 
+import { useParams } from "react-router-dom";
 import { useState, useEffect } from 'react'
 import './style.css'
 
-function Pokemon() {
-    const { name } = useParams(); 
-    const [datapoke, setDatapoke] = useState([]);
-    const [favoritos, setFavoritos] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem('favoritos') || '[]');
-        } catch {
-            return [];
-        }
-    });
-    const esFavorito = favoritos.some(p => p.id === datapoke.id);
+function Producto() {
+  const { id } = useParams();
+  const [producto, setProducto] = useState(null);
+  const [mensaje, setMensaje] = useState('');
+  const [favoritos, setFavoritos] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('favoritos') || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const esFavorito = favoritos.some(p => p.id === producto?.id);
 
-
-    useEffect(() => {
-    fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+  useEffect(() => {
+    fetch(`https://api.escuelajs.co/api/v1/products/${id}`)
       .then(response => response.json())
-      .then(responseData => setDatapoke(responseData))
+      .then(responseData => setProducto(responseData))
       .catch(error => console.error("Error:", error));
-    }, [name]); 
+  }, [id]);
 
-    const toggleFavorito = () => {
-        let nuevosFavoritos;
-        if (esFavorito) {
-        nuevosFavoritos = favoritos.filter(p => p.id !== datapoke.id);
-        } else {
-        nuevosFavoritos = [...favoritos, { id: datapoke.id, nombre: datapoke.name }];
-        }
-        setFavoritos(nuevosFavoritos);
-        localStorage.setItem('favoritos', JSON.stringify(nuevosFavoritos));
-    };
-    
-    if (!datapoke || !datapoke.id) return <p>Cargando...</p>;
-    return (
-        <div>
-        <h1>{datapoke.name}</h1>
-        <img 
-            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${datapoke.id}.png`} 
-            alt={datapoke.name} 
-            width="200"
-        />
+  const toggleFavorito = () => {
+    let nuevosFavoritos;
+    if (esFavorito) {
+      nuevosFavoritos = favoritos.filter(p => p.id !== producto.id);
+    } else {
+      nuevosFavoritos = [
+        ...favoritos,
+        { id: producto.id, nombre: producto.title, imagen: producto.images[0] }
+      ];
+    }
+    setFavoritos(nuevosFavoritos);
+    localStorage.setItem('favoritos', JSON.stringify(nuevosFavoritos));
+  };
 
-        <p>{datapoke.id}</p>
-        <p>Altura: {datapoke.height/ 10} m / Peso: {datapoke.weight/ 10} kg</p>
+  const agregarAlCarrito = () => {
+    let carrito;
+    try {
+      carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+    } catch {
+      carrito = [];
+    }
+    const existente = carrito.find(p => p.id === producto.id);
+    const nuevo = existente
+      ? carrito.map(p => (p.id === producto.id ? { ...p, cantidad: p.cantidad + 1 } : p))
+      : [...carrito, {
+          id: producto.id,
+          nombre: producto.title,
+          imagen: producto.images[0],
+          precio: producto.price,
+          cantidad: 1
+        }];
+    localStorage.setItem('carrito', JSON.stringify(nuevo));
+    setMensaje('Agregado al carrito ✔');
+  };
 
-        <p>hp: {datapoke.stats[0].base_stat}</p>
-        <p>Velocidad: {datapoke.stats[5].base_stat}</p>
-        <p>Ataque: {datapoke.stats[1].base_stat} Defensa: {datapoke.stats[2].base_stat}</p>
-        <p>Ataque Especial: {datapoke.stats[3].base_stat} Defensa Especial: {datapoke.stats[4].base_stat}</p>
+  const compartir = async () => {
+    const texto = `${producto.title} - $${producto.price}`;
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: producto.title, text: texto, url });
+        return;
+      }
+    } catch {
+      return;
+    }
+    const campo = document.createElement('textarea');
+    campo.value = `${texto} ${url}`;
+    document.body.appendChild(campo);
+    campo.select();
+    document.execCommand('copy');
+    document.body.removeChild(campo);
+    setMensaje('Enlace copiado ✔');
+  };
 
+  if (!producto || !producto.id) return <p>Cargando...</p>;
 
-            <button onClick={toggleFavorito}>
-            {esFavorito ? '❤️' : '🤍'}
-            </button>
-        </div>
-    )
+  return (
+    <div className="c-detalle">
+      <img src={producto.images[0]} alt={producto.title} />
+      <h1>{producto.title}</h1>
+      <p className="c-precio">${producto.price}</p>
+      <p className="c-descripcion">{producto.description}</p>
+      <button onClick={toggleFavorito}>{esFavorito ? '❤️' : '🤍'}</button>
+      <button className="c-btn-carrito" onClick={agregarAlCarrito}>Agregar al carrito</button>
+      <button className="c-btn-compartir" onClick={compartir}>Compartir</button>
+      {mensaje && <p className="c-mensaje">{mensaje}</p>}
+    </div>
+  )
 }
 
-export default Pokemon
+export default Producto

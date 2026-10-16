@@ -1,104 +1,53 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './style.css';
+import { useState } from 'react'
+import './style.css'
 
-function Coleccion() {
-  const totalPokes = 1025;
-  const [listaCapturados, setListaCapturados] = useState(() => {
+function Carrito() {
+  const [carrito, setCarrito] = useState(() => {
     try {
-      const guardados = JSON.parse(localStorage.getItem('misNumeros') || '[]');
-      return Array.isArray(guardados) ? [...new Set(guardados.map(Number))] : [];
+      return JSON.parse(localStorage.getItem('carrito') || '[]')
     } catch {
-      return [];
+      return []
     }
-  });
-  const [pokemones, setPokemones] = useState([]);
-  const [nuevos, setNuevos] = useState([]);
-  const navigate = useNavigate();
-  const espacio = Array.from({ length: totalPokes }, (_, i) => i + 1);
+  })
 
-  useEffect(() => {
-    fetch('https://pokeapi.co/api/v2/pokemon?limit=1025')
-      .then((respuesta) => respuesta.json())
-      .then((datos) => setPokemones(datos.results))
-      .catch((error) => console.error('Error al cargar Pokémon:', error));
-  }, []);
+  const guardar = (nuevo) => {
+    setCarrito(nuevo)
+    localStorage.setItem('carrito', JSON.stringify(nuevo))
+  }
 
-  const capturarAleatorios = () => {
-    const seleccionados = Array.from(
-      { length: 4 },
-      () => Math.floor(Math.random() * totalPokes) + 1
-    );
-    const vistos = new Set(listaCapturados);
-    const resultados = seleccionados.map((id) => {
-      const repetido = vistos.has(id);
-      vistos.add(id);
-      return { id, repetido };
-    });
-    const actualizados = [...vistos];
+  const cambiar = (id, delta) => {
+    guardar(
+      carrito
+        .map(p => (p.id === id ? { ...p, cantidad: p.cantidad + delta } : p))
+        .filter(p => p.cantidad > 0)
+    )
+  }
 
-    setListaCapturados(actualizados);
-    setNuevos(resultados);
-    localStorage.setItem('misNumeros', JSON.stringify(actualizados));
-  };
+  const total = carrito.reduce((suma, p) => suma + p.precio * p.cantidad, 0)
+
+  if (carrito.length === 0) return <p className="c-carrito-vacio">Tu carrito está vacío.</p>
 
   return (
-    <main className="coleccion">
-      <h1 className="coleccion-titulo">Colección</h1>
-      <p className="coleccion-contador">{listaCapturados.length} <span>/ {totalPokes}</span></p>
-      <button
-        className="coleccion-boton"
-        onClick={capturarAleatorios}
-        disabled={listaCapturados.length >= totalPokes}
-      >
-        4 nuevos
-      </button>
-
-      {nuevos.length > 0 && <h2 className="coleccion-subtitulo">Tus nuevos Pokémon</h2>}
-      <section className="coleccion-nuevos">
-        {nuevos.map(({ id, repetido }, indice) => (
-          <div
-            key={`${id}-${indice}`}
-            className={repetido ? 'coleccion-nuevo repetido' : 'coleccion-nuevo'}
-            onClick={() => navigate(`/pokemon/${id}`)}
-          >
-            <p>{id}</p>
-            <img
-              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
-              alt={pokemones[id - 1]?.name || `Pokémon ${id}`}
-              width="60"
-              height="60"
-            />
-            <p>{pokemones[id - 1]?.name || ''}</p>
+    <div className="c-carrito">
+      <h1>Mi carrito</h1>
+      {carrito.map(p => (
+        <div className="c-carrito-item" key={p.id}>
+          <img src={p.imagen} alt={p.nombre} />
+          <div className="c-carrito-info">
+            <p className="c-carrito-nombre">{p.nombre}</p>
+            <p className="c-carrito-precio">${p.precio * p.cantidad}</p>
           </div>
-        ))}
-      </section>
-
-      <section className="coleccion-album">
-        {espacio.map((id) => {
-          const capturado = listaCapturados.includes(id);
-          return (
-            <div
-              key={id}
-              className={capturado ? 'coleccion-pokemon capturado' : 'coleccion-pokemon'}
-              onClick={() => capturado && navigate(`/pokemon/${id}`)}
-            >
-              {capturado && (
-                <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
-                  width="auto"
-                  height="45"
-                  loading="lazy"
-                  alt={String(id)}
-                />
-              )}
-              <p>{id}</p>
-            </div>
-          );
-        })}
-      </section>
-    </main>
-  );
+          <div className="c-carrito-cantidad">
+            <button onClick={() => cambiar(p.id, -1)}>-</button>
+            <span>{p.cantidad}</span>
+            <button onClick={() => cambiar(p.id, 1)}>+</button>
+          </div>
+        </div>
+      ))}
+      <div className="c-carrito-total">Total: ${total}</div>
+      <button className="c-carrito-vaciar" onClick={() => guardar([])}>Vaciar carrito</button>
+    </div>
+  )
 }
 
-export default Coleccion;
+export default Carrito

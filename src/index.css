@@ -1,0 +1,20 @@
+:root {
+  --primary: #4f46e5;
+  --primary2: #9333ea;
+  --bg: #f6f7fb;
+  --text: #1f2937;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
